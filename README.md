@@ -30,11 +30,11 @@ opinions:
 #### 实现
 先说SlowLogin，比较无脑，获得输入框的xpath，然后直接sendkeys，这里有个比较麻烦
 的就是验证码的问题，这里我用了webdriver的screenshot方法，将图片保存到本地，然后调用
-百度的ocr，要花钱(5555)，而且存在识别错现象。因为本来就不是很智能，用人眼看填验证码的话
+本地的ocr，而且存在识别错现象。因为本来就不是很智能，用人眼看填验证码的话
 就更不智能了。
 
 FastLogin这个就非常智能，模拟了发包过程，通过分析登录操作可以知道，先get RSA的公钥再get验证码，分析前端加密js可知，是通过rsa对password进行了加密，我们可以用简单的用python模拟，考虑到搭建环境太复杂，这里是模拟的，没有用exejs和node.js，因此耗费了很长时间，其中jsFunction模拟了js中对RSA的加密。由于get的验证码是二进制文件
-我们可以直接将其写入文件中，然后调用baiduocr的api识别，或者人工识别，两个函数在FastLogin中可以自由选择，可以通过config.yml进行设置
+我们可以直接将其写入文件中，然后调用本地AI识别，或者人工识别，两个函数在FastLogin中可以自由选择，可以通过config.yml进行设置
 
 ```python
 # 智能人工识别验证码
@@ -70,12 +70,9 @@ ocr识别的话，如下
 一些设置如下，需要保存在config.yml中
 ```yaml
 user:
-  - id: 'xxxxxxxx' 学号
-  - password: 'xxxxxxxxxx' 密码
-ocr: 百度识图的api
-  - key: 'xxxxxxxxxxx'
-  - secret: 'xxxxxxxxxxxxxxxx'
+  - id: 'xxxxxxxx' # 学号
+  - password: 'xxxxxxxxxx' # 密码
 opinions:
-  - AI: true
-  - login: 'fast'
+  - AI: true # AI识别验证码选项 true/false
+  - login: 'fast' # 登录方式 fast/slow
 ```
