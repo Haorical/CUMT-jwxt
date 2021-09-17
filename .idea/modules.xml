@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/教务系统.iml" filepath="$PROJECT_DIR$/.idea/教务系统.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/cumt-jwxt.iml" filepath="$PROJECT_DIR$/.idea/cumt-jwxt.iml" />
     </modules>
   </component>
 </project>
