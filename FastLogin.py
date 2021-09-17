@@ -77,7 +77,7 @@ def get_code_by_ocr(sessions):
     path = './image/yzm.png'
     with open(path, 'wb')as code_img:
         code_img.write(request.content)
-    code = generator()
+    code = generator(path)
     return code
 
 

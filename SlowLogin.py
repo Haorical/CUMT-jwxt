@@ -18,8 +18,9 @@ driver.get(url)
 driver.find_element_by_xpath('//*[@id="yhm"]').send_keys(stu_id)
 driver.find_element_by_xpath('//*[@id="mm"]').send_keys(stu_password)
 code_image = driver.find_element_by_xpath('//*[@id="yzmPic"]')
-code_image.screenshot('./image/yzm.png')
-yzm = generator()
+path = './image/yzm.png'
+code_image.screenshot(path)
+yzm = generator(path)
 driver.find_element_by_xpath('//*[@id="yzm"]').send_keys(yzm)
 driver.find_element_by_xpath('//*[@id="dl"]').click()
 
