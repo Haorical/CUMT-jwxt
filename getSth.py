@@ -2,7 +2,9 @@
 
 import requests
 import time
+import sys
 import yaml
+from datetime import datetime, timedelta, timezone
 
 with open('./config.yml') as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
@@ -11,6 +13,13 @@ if config['opinions'][1]['login'] == 'slow':
     from SlowLogin import Login
 else:
     from FastLogin import Login
+
+
+def log(content):
+    utc_dt = datetime.utcnow().replace(tzinfo=timezone.utc)
+    bj_dt = utc_dt.astimezone(timezone(timedelta(hours=8)))
+    print(bj_dt.strftime("%Y-%m-%d %H:%M:%S") + ' ' + str(content))
+    sys.stdout.flush()
 
 
 class Person:
@@ -43,6 +52,7 @@ class Person:
 
     def getScores(self):
         # 成绩存储格式 {科目=>[平时分，期末分，总分，学分，绩点]}
+        log('开始获取成绩信息！')
         sc = {}
         TIME = int(round(time.time() * 1000))
         XNM = self.xnm
@@ -67,7 +77,8 @@ class Person:
         try:
             res = requests.post(url=URL, headers=headers, data=data)
         except:
-            print('成绩返回错误')
+            log('成绩查询失败')
+            exit(1)
 
         results = res.json()
         scores = results['items']
@@ -85,9 +96,31 @@ class Person:
             sc[i['kcmc']] = detail_scores
         return sc
 
+    def getCourses(self):
+        log("开始获取课表信息！")
+        url = f'http://jwxt.cumt.edu.cn/jwglxt/kbcx/xskbcx_cxXsKb.html?gnmkdm=N253508&&su={self.stu_id}'
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101 Firefox/92.0',
+            'Referer': f'http://jwxt.cumt.edu.cn/jwglxt/kbcx/xskbcx_cxXskbcxIndex.html?gnmkdm=N253508&layout=default&su={self.stu_id}',
+            'Cookie': self.cookie
+        }
+        data = {
+            'xnm': self.xnm,
+            'xqm': self.xqm,
+            'kzlx': 'ck'
+        }
+        try:
+            res = requests.post(url=url, headers=headers, data=data)
+        except:
+            log('课表查询失败')
+            exit(1)
+        data = res.json()
+
+        log(data['kbList'][18]['jxbmc'])
+
 
 if __name__ == '__main__':
     stu_id = config['user'][0]['id']
     stu_password = config['user'][1]['password']
-    test = Person(stu_id, stu_password, 2020)
-    print(test.getScores())
+    test = Person(stu_id, stu_password, 2021, 1)
+    test.getCourses()
