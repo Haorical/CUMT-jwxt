@@ -8,21 +8,17 @@ with open('./config.yml') as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
 
 if config['opinions'][1]['login'] == 'slow':
-    from SlowLogin import cookie
+    from SlowLogin import Login
 else:
-    from FastLogin import cookie
+    from FastLogin import Login
 
 
 class Person:
-    cookie = ''
-    stu_id = ''
-    xnm = ''
-    xqm = ''
 
     def __init__(self, _stu_id, _stu_password, _xnm, _xqm=''):
         self.stu_id = _stu_id
         self.stu_password = _stu_password
-        self.cookie = cookie()
+        self.cookie = Login(self.stu_id, self.stu_password).cookie()
         self.xnm = _xnm
         self.xqm = _xqm
 
