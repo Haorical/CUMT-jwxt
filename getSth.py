@@ -9,10 +9,7 @@ from datetime import datetime, timedelta, timezone
 with open('./config.yml') as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
 
-if config['opinions'][1]['login'] == 'slow':
-    from SlowLogin import Login
-else:
-    from FastLogin import Login
+from Login import SlowLogin,FastLogin
 
 
 def log(content):
@@ -27,7 +24,10 @@ class Person:
     def __init__(self, _stu_id, _stu_password, _xnm, _xqm=''):
         self.stu_id = _stu_id
         self.stu_password = _stu_password
-        self.cookie = Login(self.stu_id, self.stu_password).cookie()
+        if config['opinions'][1]['login'] == 'slow':
+            self.cookie = SlowLogin(self.stu_id, self.stu_password).cookie()
+        else:
+            self.cookie = FastLogin(self.stu_id, self.stu_password).cookie()
         self.xnm = _xnm
         self.xqm = _xqm
 
