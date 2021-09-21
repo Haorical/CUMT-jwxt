@@ -1,11 +1,3 @@
 Pillow == 8.1.2
 PyYAML == 5.4.1
-bs4 == 0.0.1
-psutil == 5.8.0
 requests == 2.23.0
-rsa == 4.7.2
-selenium == 3.141.0
-six == 1.15.0
-ddddocr>=1.0.6
-beautifulsoup4>=4.9.1
-onnxruntime>=1.8.1

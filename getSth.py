@@ -9,8 +9,6 @@ from datetime import datetime, timedelta, timezone
 with open('./config.yml') as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
 
-from Login import SlowLogin,FastLogin
-
 
 def log(content):
     utc_dt = datetime.utcnow().replace(tzinfo=timezone.utc)
@@ -21,13 +19,9 @@ def log(content):
 
 class Person:
 
-    def __init__(self, _stu_id, _stu_password, _xnm, _xqm=''):
+    def __init__(self, _stu_id, _cookie, _xnm, _xqm=''):
         self.stu_id = _stu_id
-        self.stu_password = _stu_password
-        if config['opinions'][1]['login'] == 'slow':
-            self.cookie = SlowLogin(self.stu_id, self.stu_password).cookie()
-        else:
-            self.cookie = FastLogin(self.stu_id, self.stu_password).cookie()
+        self.cookie = _cookie
         self.xnm = _xnm
         self.xqm = _xqm
 
