@@ -1,4 +1,11 @@
-# -*- coding: UTF-8 -*-
+# -*- encoding: utf-8 -*-
+'''
+@File    :   main.py
+@Time    :   2021/09/30 19:04:55
+@Author  :   haorical
+@Version :   1.0
+@Contact :   haorical@outlook.com
+'''
 import yaml
 import uuid
 import requests

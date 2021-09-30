@@ -1,4 +1,11 @@
-# -*- coding: UTF-8 -*-
+# -*- encoding: utf-8 -*-
+'''
+@File    :   getSth.py
+@Time    :   2021/09/30 19:04:44
+@Author  :   haorical
+@Version :   1.0
+@Contact :   haorical@outlook.com
+'''
 
 import requests
 import time
