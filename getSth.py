@@ -1,37 +1,28 @@
 # -*- encoding: utf-8 -*-
 '''
 @File    :   getSth.py
-@Time    :   2021/09/30 19:04:44
+@Time    :   2022/05/21 23:47:34
 @Author  :   haorical
-@Version :   1.0
+@Version :   1.1
 @Contact :   haorical@outlook.com
 '''
 
 import requests
 import time
-import sys
-import yaml
-from datetime import datetime, timedelta, timezone
+from ext import log, config
+from Login import FastLogin
 
-with open('./config.yml') as f:
-    config = yaml.load(f, Loader=yaml.FullLoader)
+class Stu:
 
-
-def log(content):
-    utc_dt = datetime.utcnow().replace(tzinfo=timezone.utc)
-    bj_dt = utc_dt.astimezone(timezone(timedelta(hours=8)))
-    print(bj_dt.strftime("%Y-%m-%d %H:%M:%S") + ' ' + str(content))
-    sys.stdout.flush()
-
-
-class Person:
-
-    def __init__(self, _stu_id, _cookie, _xnm, _xqm=''):
+    def __init__(self, _stu_id, _stu_pwd):
         self.stu_id = _stu_id
-        self.cookie = _cookie
-        self.xnm = _xnm
-        self.xqm = _xqm
+        self.stu_pwd = _stu_pwd
+        self.cookie = self.get_cookies()
 
+    def get_cookies(self):
+        cookies = FastLogin(self.stu_id, self.stu_pwd).cookie() 
+        return cookies
+       
     def get_detail_scores(self, __xnm, __xqm, __jxb_id, __headers, __time):
         detail_scores_url = f'http://jwxt.cumt.edu.cn//jwglxt/cjcx/cjcx_cxXsXmcjList.html?gnmkdm=N305005&su={self.stu_id}'
         _data = {
@@ -51,13 +42,13 @@ class Person:
             _detail_scores.append(i['xmcj'])
         return _detail_scores
 
-    def getScores(self):
+    def getScores(self, xnm, xqm=''):
         # 成绩存储格式 {科目=>[平时分，期末分，总分，学分，绩点]}
         log('开始获取成绩信息！')
         sc = {}
         TIME = int(round(time.time() * 1000))
-        XNM = self.xnm
-        XQM = self.xqm
+        XNM = xnm
+        XQM = xqm
         URL = f'http://jwxt.cumt.edu.cn//jwglxt/cjcx/cjcx_cxXsgrcj.html?doType=query&gnmkdm=N305005&su={self.stu_id}'
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101 Firefox/92.0',
@@ -100,7 +91,7 @@ class Person:
             sc[i['kcmc']] = detail_scores
         return sc
 
-    def getCourses(self):
+    def getCourses(self, xnm, xqm=''):
         log("开始获取课表信息！")
         url = f'http://jwxt.cumt.edu.cn/jwglxt/kbcx/xskbcx_cxXsKb.html?gnmkdm=N253508&&su={self.stu_id}'
         headers = {
@@ -109,8 +100,8 @@ class Person:
             'Cookie': self.cookie
         }
         data = {
-            'xnm': self.xnm,
-            'xqm': self.xqm,
+            'xnm': xnm,
+            'xqm': xqm,
             'kzlx': 'ck'
         }
         try:

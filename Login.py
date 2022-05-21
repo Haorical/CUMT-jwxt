@@ -1,28 +1,23 @@
-# -*- coding: UTF-8 -*-
+# -*- encoding: utf-8 -*-
+'''
+@File    :   Login.py
+@Time    :   2022/05/21 23:47:17
+@Author  :   haorical
+@Version :   1.1
+@Contact :   haorical@outlook.com
+'''
 import os
 import requests
 import psutil
 import base64
-import yaml
 import jsFunction
-import sys
 from bs4 import BeautifulSoup
 from PIL import Image
 from OcrApi import generator
-from datetime import datetime, timedelta, timezone
 import time
 from selenium import webdriver
 from OcrApi import generator
-
-with open('./config.yml') as f:
-    config = yaml.load(f, Loader=yaml.FullLoader)
-
-
-def log(content):
-    utc_dt = datetime.utcnow().replace(tzinfo=timezone.utc)
-    bj_dt = utc_dt.astimezone(timezone(timedelta(hours=8)))
-    print(bj_dt.strftime("%Y-%m-%d %H:%M:%S") + ' ' + str(content))
-    sys.stdout.flush()
+from ext import log, config
 
 
 class FastLogin:
