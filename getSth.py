@@ -58,7 +58,7 @@ class Person:
         TIME = int(round(time.time() * 1000))
         XNM = self.xnm
         XQM = self.xqm
-        URL = f'http://jwxt.cumt.edu.cn/jwglxt/cjcx/cjcx_cxDgXscj.html?doType=query&gnmkdm=N305005&su={self.stu_id}'
+        URL = f'http://jwxt.cumt.edu.cn//jwglxt/cjcx/cjcx_cxXsgrcj.html?doType=query&gnmkdm=N305005&su={self.stu_id}'
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101 Firefox/92.0',
             'Referer': f'http://jwxt.cumt.edu.cn/jwglxt/cjcx/cjcx_cxDgXscj.html?gnmkdm=N305005&layout=default&su={self.stu_id}',
@@ -81,12 +81,15 @@ class Person:
             log('成绩查询失败')
             exit(1)
 
+        # print(res.text)
+
         results = res.json()
         scores = results['items']
         cnt = results['totalCount']
         print("成绩总数: {}".format(cnt))
         if cnt != 0:
-            print('===============正在爬取，请稍后！:)=================')
+            pass
+            # print('===============正在爬取，请稍后！:)=================')
         for i in scores:
             jxb_id = i['jxb_id']
             xqm = i['xqm']
@@ -120,8 +123,11 @@ class Person:
         log(data['kbList'][18]['jxbmc'])
 
 
-if __name__ == '__main__':
-    stu_id = config['user'][0]['id']
-    stu_password = config['user'][1]['password']
-    test = Person(stu_id, stu_password, 2021, 1)
-    test.getCourses()
+# if __name__ == '__main__':
+#     stu_id = config['user'][0]['id']
+#     stu_password = config['user'][1]['password']
+#     cookies = FastLogin(stu_id, stu_password).cookie()
+#     # print(cookies)
+#     test = Person(stu_id, cookies, 2021, )
+#     test.getScores()
+
