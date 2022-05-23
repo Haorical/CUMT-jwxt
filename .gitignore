@@ -2,3 +2,4 @@ config.yml
 test.py
 __pycache__
 .idea
+/data
