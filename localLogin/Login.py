@@ -10,14 +10,11 @@ import os
 import requests
 import psutil
 import base64
-import jsFunction
+import localLogin.jsFunction as jsFunction
 from bs4 import BeautifulSoup
 from PIL import Image
-from OcrApi import generator
 import time
-from selenium import webdriver
-from OcrApi import generator
-from ext import log, config
+from moudles.ext import log, generator, AI
 
 
 class FastLogin:
@@ -26,6 +23,7 @@ class FastLogin:
         self.stu_id = _id
         self.stu_password = _pwd
         self.TIME = int(round(time.time() * 1000))
+        self.sessions = requests.Session()
 
     def password_encode(self, pwd, sessions):
         url = f'http://jwxt.cumt.edu.cn/jwglxt/xtgl/login_getPublicKey.html?time={self.TIME}&_={self.TIME - 50}'
@@ -44,10 +42,14 @@ class FastLogin:
 
     def get_csrftoken(self, sessions):
         url = f'http://jwxt.cumt.edu.cn/jwglxt/xtgl/login_slogin.html?time={self.TIME}'
-        r = sessions.get(url)
-        r.encoding = r.apparent_encoding
-        soup = BeautifulSoup(r.text, 'html.parser')
-        token = soup.find('input', attrs={'id': 'csrftoken'}).attrs['value']
+        try:
+            r = sessions.get(url)
+            r.encoding = r.apparent_encoding
+            soup = BeautifulSoup(r.text, 'html.parser')
+            token = soup.find('input', attrs={'id': 'csrftoken'}).attrs['value']
+        except:
+            log('csrf获取失败!')
+            exit(1)
         return token
 
     def get_code_by_people(self, sessions):
@@ -66,9 +68,12 @@ class FastLogin:
         code_img.show()
         log("请输入验证码:")
         code = input()
-        for proc in psutil.process_iter():
-            if not proc in process_list:
-                proc.kill()
+        try:
+            for proc in psutil.process_iter():
+                if not proc in process_list:
+                    proc.kill()
+        except:
+            pass
         os.remove(path)
         return code
 
@@ -86,9 +91,8 @@ class FastLogin:
         return code
 
     def login(self):
-        sessions = requests.Session()
-        token = self.get_csrftoken(sessions)
-        pwd_enc = self.password_encode(self.stu_password, sessions)
+        token = self.get_csrftoken(self.sessions)
+        pwd_enc = self.password_encode(self.stu_password, self.sessions)
         URL = f'http://jwxt.cumt.edu.cn/jwglxt/xtgl/login_slogin.html?time={self.TIME}'
         headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
@@ -103,12 +107,12 @@ class FastLogin:
             'Upgrade-Insecure-Requests': '1',
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101 Firefox/92.0',
         }
-        # 智能人工识别验证码
-        if config['opinions'][0]['AI']:
-            code = self.get_code_by_ocr(sessions)
+        # 智能人工识别
+        if AI:
+            code = self.get_code_by_ocr(self.sessions)
         else:
-            code = self.get_code_by_people(sessions)
-        # 人工智能识别验证码
+            code = self.get_code_by_people(self.sessions)
+        # 人工智能识别
         data = {
             'csrftoken': token,
             'language': 'zh_CN',
@@ -117,11 +121,11 @@ class FastLogin:
             'mm': pwd_enc,
             'yzm': code
         }
-        ret = sessions.post(url=URL, headers=headers, data=data)
-        cookies = sessions.cookies.get_dict()
+        ret = self.sessions.post(url=URL, headers=headers, data=data)
+        cookies = self.sessions.cookies.get_dict()
         return ret, cookies
 
-    def cookie(self):
+    def get_cookies(self):
         log("开始模拟登录！")
         rt = self.login()
         # print(rt)
@@ -131,35 +135,9 @@ class FastLogin:
         cookies = 'JSESSIONID=' + rt[1]['JSESSIONID'] + '; X-LB=' + rt[1]['X-LB'] + '; route=' + rt[1]['route']
         log("模拟登录成功！")
         return cookies
-
-class SlowLogin:
-
-    def __init__(self, _id, _pwd):
-        self.stu_id = _id
-        self.stu_password = _pwd
-        self.TIME = int(round(time.time() * 1000))
-        self.driver = webdriver.Chrome()
-
-    def login(self):
-        driver = self.driver
-        url = 'http://jwxt.cumt.edu.cn/jwglxt/xtgl/login_slogin.html'
-        driver.get(url)
-        driver.find_element_by_xpath('//*[@id="yhm"]').send_keys(self.stu_id)
-        driver.find_element_by_xpath('//*[@id="mm"]').send_keys(self.stu_password)
-        code_image = driver.find_element_by_xpath('//*[@id="yzmPic"]')
-        path = './image/yzm.png'
-        code_image.screenshot(path)
-        yzm = generator(path)
-        driver.find_element_by_xpath('//*[@id="yzm"]').send_keys(yzm)
-        driver.find_element_by_xpath('//*[@id="dl"]').click()
-
-    def cookie(self):
-        self.login()
-        time.sleep(0.2)
-        cookies = self.driver.get_cookies()
-        self.driver.quit()
-        cookies = cookies[1]['name'] + '=' + cookies[1]['value']  # +'; X-LB='+cookie[0]['value']
-        return cookies
+    
+    def get_session(self):
+        return self.sessions
 
 # if __name__ == '__main__':
 #     stu_id = config['user'][0]['id']
