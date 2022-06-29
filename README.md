@@ -1,4 +1,4 @@
-# 一种应用于中国矿业大学正方教务的信息采集与数据处理的作用于客户端与服务端的多协同高并发低代码的包含但不限于生成对抗与卷积神经网络的信息点对点应用与处理系统
+# 一种应用于中国矿业大学教务系统的数据采集系统
 
 ## 免责声明
 本代码仅用于学习，下载后请勿用于商业用途。
@@ -11,14 +11,15 @@
 
 您的使用行为或者您以其他任何明示或者默示方式表示接受本协议的，即视为您已阅读并同意本协议的约束。 
 
-## 前言
+## 快速开始
 
-**名字起的比较绕口，简而言之，爬虫🥰**
+建议在虚拟环境下运行，首先安装依赖包
 
-配置好后直接运行main.py就可以体验爬取成绩的功能，代码可读性良好，适合二次开发。
+    pip install -r requirements.txt
 
-本着服务抗大学子的宗旨，写了这个教务爬虫，用来练手，应该会开发一段时间，目前
-实现了模拟登录和爬取成绩与课表，抢课功能将不再开发，感兴趣的可以自己写。
+参考配置部分配置好config.yml后，直接运行main.py即可，全部封装为组件，适合二次开发。
+
+具体方法使用可参考demo.py
 
 ## 功能
 
@@ -27,12 +28,8 @@
 #### 简介
 **模拟登录基于flask,并已经部署到了服务器上，并提供了相应接口供使用，该项目将不再开源，下面只提供实现思路。**
 
-一共写了两个版本，一个是使用selenium的SlowLogin，看名字就看出来了，这个登录的慢
-而且需要配置webdriver，登录一次大约需要8-10秒钟；另一个是基于requests的
-FastLogin，这个顾名思义就相当的快了，基本是秒登，速度飞起，而且可能我用的
-vpn比较卡，在校园网上应该能更快。**当然服务器上的只有FastLogin!**
-
-两个模拟登录都可以直接返回成功登录之后的cookie，可以用来爬之后的界面，非常适合二次开发，欢迎二次开发，最好给个star :)
+一共写了两个版本，一个是使用selenium的SlowLogin(已废弃)；另一个是基于requests的
+FastLogin，秒登，速度飞起，**当然服务器上的只有FastLogin!**
 
 #### 实现
 先说SlowLogin，比较无脑，获得输入框的xpath，然后直接sendkeys，这里有个比较麻烦
@@ -58,7 +55,7 @@ opinions:
 
 ![](https://my-photos-test.oss-cn-hangzhou.aliyuncs.com/2021/20210916224421.png)
 
-可以看到成功获得了cookie
+成功获得了cookie
 
 ![](https://my-photos-test.oss-cn-hangzhou.aliyuncs.com/2021/20210916224809.png)
 
@@ -66,7 +63,7 @@ ocr识别的话，如下
 
 ![](https://my-photos-test.oss-cn-hangzhou.aliyuncs.com/2021/20210916225044.png)
 
-可以看到，只识别了一次，如果识别错误的话，会自动重新登录，直到登录成功
+只识别了一次，如果识别错误的话，会自动重新登录，直到登录成功
 
 ### 爬取成绩
 
@@ -78,17 +75,70 @@ ocr识别的话，如下
 
 与爬取成绩类似，之后将进行图形化处理。
 
-### 二次开发
+### 二次开发示例
 
-最近突发奇想，改了一部分爬取成绩的逻辑，搭在了服务器上，配置了server酱，每一分钟爬一次成绩，然后有新成绩的时候自动发微信，实现起来也很简单。
+新成绩微信自动提醒功能实现
 
-## 设置
-一些设置如下，需要保存在config.yml中，否则会报错，关于api的url和key，将在选课前夕公布
+```py
+    hdh = Stu(ID, PWD)
+    sc = {}
+    lsc = hdh.getScores(2021,12)
+    wcnt = 0
+    while 1:
+        try:
+            nsc = hdh.getScores(2021,12)
+            print(nsc)
+        except:
+            sleep(5)
+            pass
+        if nsc != lsc:
+            sc = nsc
+            for cnm in sc:
+                if cnm not in lsc:
+                    title = cnm + '出成绩了！'
+                    data = sc[cnm]
+            try:
+                if data[4] == '5.00':
+                    title += '恭喜你！满绩了！'
+                elif data[4] == '4.50':
+                    title += '还行！4.5'
+                else:
+                    title += f'只有{data[4]}哦！'
+                mes = f"""
+        总分：{data[2]}
+
+        平时分：{data[0]}
+
+        期末分：{data[1]}
+
+        绩点：{data[4]}
+                """
+            except:
+                title='出成绩了'
+                mes=str(data)
+                pass
+            sendMessage(title, mes)
+            lsc = nsc
+        sleep(30+random.randint(0,30))
+        wcnt += 1
+        if wcnt == 400:
+            sendMessage('运行正常','1111')
+            wcnt = 0
+```
+
+## 配置
+可直接在full_config.yml更改后，重命名为config.yml，id和password为必填项，为教务系统学号和密码
+
 ```yaml
 api:
-  - url: '' # 模拟登录接口
-  - key: '' # 接口授权密钥
+  - url: 
+  - key: 
+  - server: 
+
 user:
-  - id: 'xxxxxxxx' # 学号
-  - password: 'xxxxxxxxxx' # 密码
+  - id: '*********'
+  - password: '**********'
+
+opinions:
+  - AI: true
 ```

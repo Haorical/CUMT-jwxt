@@ -125,19 +125,19 @@ class FastLogin:
         cookies = self.sessions.cookies.get_dict()
         return ret, cookies
 
-    def get_cookies(self):
+    def get_status(self):
         log("开始模拟登录！")
         rt = self.login()
         # print(rt)
         while rt[0].text.find('验证码输入错误') != -1:
             log('验证码识别错误，正在尝试重新登录！')
             rt = self.login()
-        cookies = 'JSESSIONID=' + rt[1]['JSESSIONID'] + '; X-LB=' + rt[1]['X-LB'] + '; route=' + rt[1]['route']
+        if 'route' in rt[1]:
+            cookies = 'JSESSIONID=' + rt[1]['JSESSIONID'] + '; X-LB=' + rt[1]['X-LB'] + '; route=' + rt[1]['route']
+        else:
+            cookies = 'JSESSIONID=' + rt[1]['JSESSIONID'] + '; X-LB=' + rt[1]['X-LB']
         log("模拟登录成功！")
-        return cookies
-    
-    def get_session(self):
-        return self.sessions
+        return cookies, self.sessions
 
 # if __name__ == '__main__':
 #     stu_id = config['user'][0]['id']
