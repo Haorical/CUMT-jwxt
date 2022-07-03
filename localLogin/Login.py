@@ -14,12 +14,13 @@ import localLogin.jsFunction as jsFunction
 from bs4 import BeautifulSoup
 from PIL import Image
 import time
-from moudles.ext import log, generator, AI
+from moudles.ext import log, generator, AI, print_login
 
 
 class FastLogin:
 
     def __init__(self, _id, _pwd):
+        print_login()
         self.stu_id = _id
         self.stu_password = _pwd
         self.TIME = int(round(time.time() * 1000))
