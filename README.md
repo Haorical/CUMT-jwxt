@@ -17,7 +17,7 @@
 
     pip install -r requirements.txt
 
-参考配置部分配置好config.yml后，直接运行main.py即可，全部封装为组件，适合二次开发。
+参考<a href="#配置">配置</a>部分配置好config.yml后，直接运行main.py即可，全部封装为组件，适合<a href="#二次开发示例">二次开发</a>，最后为[选课效果展示](#选课模块效果展示)。
 
 具体方法使用可参考demo.py
 
